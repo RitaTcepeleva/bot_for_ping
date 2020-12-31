@@ -4,9 +4,10 @@ from pycoingecko import CoinGeckoAPI
 from time import sleep
 from multiprocessing import Process
 import get_instant_trades
+import os
 
 
-TOKEN = ''
+TOKEN = '1248180056:AAFnMlCgD4WaChjloUSQJWDlpjBkAUka6Z0'
 bot = telebot.TeleBot(TOKEN)
 cg = CoinGeckoAPI()
 #Bot testing
@@ -44,8 +45,13 @@ def check_count_transactions():
         hey_erc = float(get_instant_trades.get_erc_trades())
         if abs(ts - hey_erc) >= 86400.0 and abs(ts - hey_inst) >= 86400.0:
             bot.send_message(GROUP_ID, 'There were no trades for more than 24h')
+            x = 60 * 60 * 24
+        elif hey_erc >= hey_inst:
+            x = hey_erc + 86400 - ts
+        else:
+            x = hey_inst + 86400 - ts
 
-        sleep(60*60*24)
+        sleep(x)
 
 def ping():
     #timestamp = 1608558087
@@ -66,18 +72,43 @@ def health_check():
         status = get_instant_trades.healthcheck()
         if status != 'OK':
             bot.send_message(GROUP_ID, '1inch api is unavailable')
-        difference = get_instant_trades.get_course()
-        if difference >= 50.0:
-            bot.send_message(GROUP_ID, 'Rubic market rate differs from CoinGecko for more than 50%')
 
         sleep(30*60)
 
+def market_rate():
+    difference = get_instant_trades.get_course()
+    if difference >= 50.0:
+        bot.send_message(GROUP_ID, 'Rubic market rate differs from CoinGecko for more than 50%')
+
+    sleep(60*60*3)
+
 
 if __name__ == '__main__':
-    proc2 = Process(target=ping)
-    proc3 = Process(target=check_count_transactions())
-    proc4 = Process(target=health_check())
+    procs = []
+    for i in range(4):
+        if i == 0:
+            proc = Process(target=ping)
+            procs.append(proc)
+            proc.start()
+        if i == 1:
+            proc = Process(target=health_check)
+            procs.append(proc)
+            proc.start()
+        if i == 2:
+            proc = Process(target=check_count_transactions)
+            procs.append(proc)
+            proc.start()
+        if i == 3:
+            proc = Process(target=market_rate)
+            procs.append(proc)
+            proc.start()
+    for proc in procs:
+        proc.join()
+
+    '''proc2 = Process(target=ping)
+    proc3 = Process(target=check_count_transactions)
+    proc4 = Process(target=health_check)
     proc2.start()
     proc3.start()
-    proc4.start()
+    proc4.start()'''
     bot.polling(none_stop=True)
