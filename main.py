@@ -7,13 +7,13 @@ import get_instant_trades
 import os
 
 
-TOKEN = '1248180056:AAFnMlCgD4WaChjloUSQJWDlpjBkAUka6Z0'
+TOKEN = ''
 bot = telebot.TeleBot(TOKEN)
 cg = CoinGeckoAPI()
 #Bot testing
-#GROUP_ID = -491104469
+#GROUP_ID = 
 #Test2
-GROUP_ID = -455373776
+GROUP_ID = 
 
 
 @bot.message_handler(commands=['start'])
