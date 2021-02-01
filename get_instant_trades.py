@@ -23,28 +23,30 @@ def get_trades():
 
     response = requests.get('https://api.etherscan.io/api?module=account&action=txlistinternal&address=0x7367409E0c12b2B7cAa5c990E11A75E0D86580fc&startblock=0&endblock=1149709300&page=1&offset=10&sort=desc&apikey=QCY854HHJW8I47RIIJRUH9WYASWI9VB1D1')
     json_data = json.loads(response.text)
-    last_timestamp = json_data['result'][0]['timeStamp']
-    #dt_object = datetime.fromtimestamp(int(last_timestamp))
-
-    curr_obj = w3_test.get_currency(json_data['result'][0]['hash'])
-
+    #last_timestamp = json_data['result'][0]['timeStamp']
+    isError = json_data['result'][0]['isError']
+    i = 0
+    while isError != '0':
+        if json_data['result'][i]['isError'] == '1':
+            i += 1
+        else:
+            isError = json_data['result'][i]['isError']
+    last_timestamp = json_data['result'][i]['timeStamp']
+    curr_obj = w3_test.get_currency(json_data['result'][i]['hash'])
+	
     currency_address = curr_obj[0]
     res1 = requests.get('https://api.coingecko.com/api/v3/coins/ethereum/contract/' + currency_address)
     curr = json.loads(res1.text)
-
-    #curr = cg.get_coin_info_from_contract_address_by_id(id='ethereum', contract_address=currency_address)
-    #curr_name = curr['name']
     value = curr_obj[2]
     curr_symb = curr['symbol'].upper()
-
     usdt_price = 1/cg.get_price(ids='tether', vs_currencies='usd')['tether']['usd']
     usd_price = curr['market_data']['current_price']['usd']
     usdt_itog = toFixed(curr_obj[1]*usd_price*usdt_price, 5)
-
+	
     string_transaction = 'New SWAP transaction!\n' + \
                          str(value) + ' ETH to ' + str(curr_obj[1]) + ' ' + curr_symb + ' ('\
                          + str(usdt_itog)+' USDT)\n' \
-                         'Transaction Hash: ' + json_data['result'][0]['hash']+'\nhttps://etherscan.io/tx/'+json_data['result'][0]['hash']
+                         'Transaction Hash: ' + json_data['result'][i]['hash']+'\nhttps://etherscan.io/tx/'+json_data['result'][i]['hash']
 
     print('get_trades process id : {0}'.format(proc))
 
