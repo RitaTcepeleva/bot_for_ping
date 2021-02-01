@@ -6,7 +6,7 @@ def get_currency(txn_hash):
     #trans_action = w3.eth.waitForTransactionReceipt(txn_hash)
     trans_v = w3.eth.getTransaction(txn_hash)
     trans_action = w3.eth.getTransactionReceipt(txn_hash)
-    if len(trans_action.logs) == 6:
+    if len(trans_action.logs) == 6 or len(trans_action.logs) == 7 or len(trans_action.logs) == 8:
         curr_addr = trans_action.logs[2].address
         ret_amount = int(trans_action.logs[2].data, 16)/1000000000000000000
         amount = int(trans_v.value) / 1000000000000000000
@@ -19,9 +19,3 @@ def get_currency(txn_hash):
     #ret_amount = int(trans_action.logs[2].data, 16)
 
     return curr_addr, ret_amount, amount
-
-#tran = w3.eth.waitForTransactionReceipt('0xa7b44f81a8236443227e5372bba92c4976240104153d8820f66092edf9cb9467')
-
-#lapenko_rulit = get_currency('0xbf281d23702a28ff7ebc8c3d93c2e2032da767b8691418cafd7efcfcf6bd0fc2')
-
-#print(w3.eth.getTransaction('0xa7b44f81a8236443227e5372bba92c4976240104153d8820f66092edf9cb9467'))
