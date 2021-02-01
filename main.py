@@ -10,10 +10,7 @@ import os
 TOKEN = ''
 bot = telebot.TeleBot(TOKEN)
 cg = CoinGeckoAPI()
-#Bot testing
-#GROUP_ID = 
-#Test2
-GROUP_ID = 
+GROUP_ID = -411269351
 
 
 @bot.message_handler(commands=['start'])
